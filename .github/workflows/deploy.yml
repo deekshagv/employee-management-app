@@ -1,5 +1,4 @@
-
-name: Employee Management CI
+name: Employee Management CI/CD
 
 on:
   push:
@@ -10,8 +9,15 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
 jobs:
-  identify-environment:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,8 +30,38 @@ jobs:
 
           if [ "$GITHUB_REF_NAME" = "dev" ]; then
             echo "Development environment"
+            echo "STACK_NAME=employee-management-api-dev" >> $GITHUB_ENV
           elif [ "$GITHUB_REF_NAME" = "staging" ]; then
             echo "Staging environment"
+            echo "STACK_NAME=employee-management-api-staging" >> $GITHUB_ENV
           elif [ "$GITHUB_REF_NAME" = "prod" ]; then
             echo "Production environment"
+            echo "STACK_NAME=employee-management-api-prod" >> $GITHUB_ENV
+          else
+            echo "Unsupported branch"
+            exit 1
           fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Build SAM application
+        working-directory: backend
+        run: sam build
+
+      - name: Deploy SAM application
+        working-directory: backend
+        run: |
+          sam deploy \
+            --stack-name $STACK_NAME \
+            --region $AWS_REGION \
+            --resolve-s3 \
+            --capabilities CAPABILITY_IAM \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
