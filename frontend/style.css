@@ -1,0 +1,39 @@
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 40px;
+}
+
+.container {
+    max-width: 650px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+input {
+    padding: 12px;
+    margin: 5px;
+}
+
+button {
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.employee {
+    padding: 12px;
+    margin-top: 10px;
+    background: #f3f4f6;
+    border-radius: 6px;
+}
+
+.employee button {
+    margin-left: 10px;
+}
