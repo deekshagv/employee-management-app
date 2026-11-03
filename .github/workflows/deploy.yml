@@ -6,7 +6,6 @@ on:
       - dev
       - staging
       - prod
-
   workflow_dispatch:
 
 permissions:
@@ -41,6 +40,18 @@ jobs:
             echo "Unsupported branch"
             exit 1
           fi
+
+      - name: Check OIDC token claims
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken('sts.amazonaws.com');
+            const payload = JSON.parse(
+              Buffer.from(token.split('.')[1], 'base64url').toString()
+            );
+
+            console.log('OIDC subject:', payload.sub);
+            console.log('OIDC audience:', payload.aud);
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
