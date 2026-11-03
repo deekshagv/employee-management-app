@@ -1,0 +1,31 @@
+
+name: Employee Management CI
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - prod
+
+  workflow_dispatch:
+
+jobs:
+  identify-environment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Identify environment
+        run: |
+          echo "Current branch: $GITHUB_REF_NAME"
+
+          if [ "$GITHUB_REF_NAME" = "dev" ]; then
+            echo "Development environment"
+          elif [ "$GITHUB_REF_NAME" = "staging" ]; then
+            echo "Staging environment"
+          elif [ "$GITHUB_REF_NAME" = "prod" ]; then
+            echo "Production environment"
+          fi
