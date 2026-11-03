@@ -2,9 +2,21 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
-Description: Employee Management API
+Description: Employee Management API with DynamoDB
 
 Resources:
+  EmployeesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: employee-management-employees
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
   EmployeeApiFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -13,6 +25,15 @@ Resources:
       Runtime: nodejs24.x
       Timeout: 15
       MemorySize: 256
+
+      Environment:
+        Variables:
+          EMPLOYEES_TABLE: !Ref EmployeesTable
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EmployeesTable
+
       Events:
         EmployeeApi:
           Type: Api
